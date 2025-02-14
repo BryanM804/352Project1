@@ -22,6 +22,16 @@ def server():
     msg = "Welcome to CS 352!"
     csockid.send(msg.encode('utf-8'))
 
+    with open("out-proj.txt", "w") as file:
+        data = csockid.recv(1024).decode()
+        while data:
+            altered_string = data[::-1].swapcase()
+            print(altered_string)
+            csockid.send(altered_string.encode('utf-8'))
+            file.write(altered_string)
+
+            data = csockid.recv(1024).decode()
+
     # Close the server socket
     ss.close()
     exit()
