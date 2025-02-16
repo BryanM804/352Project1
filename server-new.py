@@ -1,5 +1,7 @@
 import socket
 
+output_file = "out-proj.txt"
+output_data = []
 buffer_size = 200
 
 def server():
@@ -27,7 +29,8 @@ def server():
     csockid, addr = ss.accept() # get details of client socket
     print ("[S]: Got a connection request from a client at {}".format(addr))
 
-    # Whenever data is received from client, process it and send it back. Repeat until client closes connection.
+    # Whenever data is received from client, process it and add it to output_data
+    # Send an ACK response after processing each, to tell client to send next line
     while True:
         data_from_client = csockid.recv(buffer_size) # receive data from client
 
@@ -36,9 +39,17 @@ def server():
             break
 
         print("[S]: Data received from client: {}".format(data_from_client.decode('utf-8')))
-        data_to_client = process_data(data_from_client.decode('utf-8')) # process data
-        print("[S]: Data to be sent to client: {}".format(data_to_client))
-        csockid.send(data_to_client.encode('utf-8')) # send processed data back to client
+        processed_data = process_data(data_from_client.decode('utf-8'))
+        output_data.append(processed_data)
+        print("[S]: Data processed: {}".format(processed_data))
+
+        ack = "ACK"
+        csockid.send(ack.encode('utf-8')) # send ACK to client
+    
+    # Write output_data to output_file
+    with open(output_file, "w") as f:
+        for line in output_data:
+            f.write(line + "\n")
 
     # Close the server socket
     ss.close()

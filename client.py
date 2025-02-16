@@ -1,8 +1,6 @@
 import socket
 
 input_data_file = "in-proj.txt"
-output_data_file = "out-proj.txt"
-output_data = []
 buffer_size = 200
 
 def client():
@@ -22,25 +20,19 @@ def client():
     cs.connect(server_binding)
 
     # Send data to server
-    # Send line by line, waiting for a response after each line
+    # Send line by line, waiting for a ACK response after each line
+    # Send next line only if ACK response is received
     with open(input_data_file, "r") as f:
         for line in f:
             line = line.rstrip()
-            print("[C]: Sending data to server: {}".format(line))
             cs.send(line.encode('utf-8'))
-            data_from_server = cs.recv(buffer_size)
-            print("[C]: Data received from server: {}".format(data_from_server.decode('utf-8')))
-            output_data.append(data_from_server.decode('utf-8'))
-
+            print("[C]: Data sent to server: {}".format(line))
+            ack = cs.recv(buffer_size)
+            print("[C]: ACK received from server: {}".format(ack.decode('utf-8')))
+    
     # close the client socket
     cs.close()
     print("[C]: Connection closed")
-
-    # Write output data to file
-    with open(output_data_file, "w") as f:
-        for line in output_data:
-            f.write(line)
-            f.write("\n")
 
     exit()
 
